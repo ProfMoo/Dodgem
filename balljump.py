@@ -1,5 +1,7 @@
 import random, sys, time, math, pygame
 from pygame.locals import *
+from User import *
+
 
 FPS = 30 # frames per second to update the screen
 WINWIDTH = 1280 # width of the program's window, in pixels
@@ -19,6 +21,8 @@ BOUNCERATE = 6       # how fast the player bounces (large is slower)
 BOUNCEHEIGHT = 30    # how high the player bounces
 USERSIZE = 70
 FLOORHEIGHT = 100
+JUMPACCELERATION = -50
+GRAVITY = 6
 
 LEFT = 'left'
 RIGHT = 'right'
@@ -47,19 +51,18 @@ def runGame():
 
     moveLeft  = False
     moveRight = False
-    moveUp    = False
-    moveDown  = False
+    
+    vertMovement = 0
 
-    playerObj = {'surface': pygame.transform.scale(USER_IMG, (USERSIZE, USERSIZE)),
-             'x': HALF_WINWIDTH,
-             'y': (WINHEIGHT-FLOORHEIGHT) - USERSIZE,
-             'inAir': False,
-             'inDubAir': False}
+    leftDown = False
+    rightDown = False
+
+    playerObj = User(pygame.transform.scale(USER_IMG, (USERSIZE, USERSIZE)), HALF_WINWIDTH, (WINHEIGHT-FLOORHEIGHT) - USERSIZE)
 
     while True: # main game loop
-        # draw the green background
         DISPLAYSURF.fill(BACKGROUNDCOLOR)
-        pygame.draw.rect(DISPLAYSURF, OBSTACLECOLOR, FLOORRECT)
+        pygame.draw.rect(DISPLAYSURF, BLACK, FLOORRECT)
+        drawLevelOne()
 
         for event in pygame.event.get(): # event handling loop
             if event.type == QUIT:
@@ -68,54 +71,55 @@ def runGame():
             elif event.type == KEYDOWN:
                 if event.key in (K_LEFT, K_a):
                     moveRight = False
-                    moveLeft = True
+                    if rightDown is not True:
+                        moveLeft = True
+                    leftDown = True
                 elif event.key in (K_RIGHT, K_d):
                     moveLeft = False
-                    moveRight = True
+                    if leftDown is not True:
+                        moveRight = True
+                    rightDown = True
                 elif event.key is K_SPACE:
-                    if playerObj['inAir'] is False:
-                        playerObj['inAir'] = True
-                        verticalMovement = -40
-                    if playerObj['inAir'] is True:
-                        if playerObj['inDubAir'] is False and verticalMovement > -15:
-                            playerObj['inDubAir'] = True
-                            verticalMovement = -40
+                    print("space pressed: ")
+                    if playerObj.jumps != 0:
+                        playerObj.jumps -= 1
+                        vertMovement = JUMPACCELERATION
 
             elif event.type == KEYUP:
                 if event.key in (K_LEFT, K_a):
+                    if rightDown is True:
+                        moveRight = True
                     moveLeft = False
+                    leftDown = False
                 elif event.key in (K_RIGHT, K_d):
+                    if leftDown is True:
+                        moveLeft = True
                     moveRight = False
+                    rightDown = False
 
                 elif event.key == K_ESCAPE:
                     terminate()
 
-        if not gameOverMode:
-            # actually move the player
-            if moveLeft:
-                playerObj['x'] -= MOVERATE
-            if moveRight:
-                playerObj['x'] += MOVERATE
+        if playerObj.y + vertMovement < (WINHEIGHT-FLOORHEIGHT) - USERSIZE:
+            playerObj.y += vertMovement
+            vertMovement += GRAVITY
+        else:
+            playerObj.jumps = 2
+            playerObj.y = (WINHEIGHT-FLOORHEIGHT) - USERSIZE            
 
-            if playerObj['inAir'] is True:
-                print("inAir: ", playerObj['inAir'])
-                print("inDubAir: ", playerObj['inDubAir'])
-                playerObj['y'] += verticalMovement
-                verticalMovement += 5
-                if playerObj['y'] >= ((WINHEIGHT-FLOORHEIGHT) - USERSIZE):
-                    playerObj['inAir'] = False
-                    playerObj['inDubAir'] = False
-                    playerObj['y'] = ((WINHEIGHT-FLOORHEIGHT) - USERSIZE)
-            elif playerObj['inDubAir'] is True:
-                playerObj['y'] += verticalMovement
-                verticalMovement += 5
-                if playerObj['y'] >= ((WINHEIGHT-FLOORHEIGHT) - USERSIZE):
-                    playerObj['inAir'] = False
-                    playerObj['inDubAir'] = False
-                    playerObj['y'] = ((WINHEIGHT-FLOORHEIGHT) - USERSIZE)
+        # actually move the player
+        if moveLeft:
+            playerObj.x -= MOVERATE
+        if moveRight:
+            playerObj.x += MOVERATE
+        # if moveVert:
+        #     playerObj.x += vertMovement
 
-            playerObj['rect'] = pygame.Rect( playerObj['x'], playerObj['y'], USERSIZE, USERSIZE)
-            DISPLAYSURF.blit(playerObj['surface'], playerObj['rect'])
+
+
+
+        playerObj.rect = pygame.Rect( playerObj.x, playerObj.y, USERSIZE, USERSIZE)
+        DISPLAYSURF.blit(playerObj.surface, playerObj.rect)
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
@@ -123,6 +127,13 @@ def runGame():
 def terminate():
     pygame.quit()
     sys.exit()
+
+def drawRectangle(x, y, width, height):
+    OBSTACLE1_1 = pygame.Rect(x, y, width, height)
+    pygame.draw.rect(DISPLAYSURF, OBSTACLECOLOR, OBSTACLE1_1)
+
+def drawLevelOne():
+    drawRectangle(700, WINHEIGHT-FLOORHEIGHT-250, 100, 250)
 
 if __name__ == '__main__':
     main()
