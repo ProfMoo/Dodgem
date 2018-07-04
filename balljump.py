@@ -24,6 +24,8 @@ FLOORHEIGHT = 100
 JUMPACCELERATION = -50
 GRAVITY = 6
 
+OBSTACLELIST = []
+
 LEFT = 'left'
 RIGHT = 'right'
 
@@ -100,6 +102,7 @@ def runGame():
                 elif event.key == K_ESCAPE:
                     terminate()
 
+        # actually move the player
         if playerObj.y + vertMovement < (WINHEIGHT-FLOORHEIGHT) - USERSIZE:
             playerObj.y += vertMovement
             vertMovement += GRAVITY
@@ -107,16 +110,13 @@ def runGame():
             playerObj.jumps = 2
             playerObj.y = (WINHEIGHT-FLOORHEIGHT) - USERSIZE            
 
-        # actually move the player
+        #check if it can move normally
+        #if it can, do it
+        #if not, give restricted x or y
         if moveLeft:
-            playerObj.x -= MOVERATE
+            playerObj.leftMovement(MOVERATE, USERSIZE, OBSTACLELIST)
         if moveRight:
-            playerObj.x += MOVERATE
-        # if moveVert:
-        #     playerObj.x += vertMovement
-
-
-
+            playerObj.rightMovement(MOVERATE, USERSIZE, OBSTACLELIST)
 
         playerObj.rect = pygame.Rect( playerObj.x, playerObj.y, USERSIZE, USERSIZE)
         DISPLAYSURF.blit(playerObj.surface, playerObj.rect)
@@ -130,10 +130,11 @@ def terminate():
 
 def drawRectangle(x, y, width, height):
     OBSTACLE1_1 = pygame.Rect(x, y, width, height)
+    OBSTACLELIST.append(OBSTACLE1_1)
     pygame.draw.rect(DISPLAYSURF, OBSTACLECOLOR, OBSTACLE1_1)
 
 def drawLevelOne():
-    drawRectangle(700, WINHEIGHT-FLOORHEIGHT-250, 100, 250)
+    drawRectangle(800, WINHEIGHT-FLOORHEIGHT-250, 100, 250)
 
 if __name__ == '__main__':
     main()
