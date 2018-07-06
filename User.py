@@ -1,7 +1,10 @@
 import settings
+import pygame
+import time
+from pygame.locals import *
 
 class User(object):
-	def __init__ (self, surfacei, xi, yi, moveratei, sizei, jumpAccelerationi, gravityi):
+	def __init__ (self, surfacei, xi, yi, moveratei, sizei, jumpAccelerationi, gravityi, numJumpsi):
 		self.surface = surfacei
 		self.x = xi
 		self.y = yi
@@ -9,7 +12,8 @@ class User(object):
 		self.size = sizei
 		self.jumpAcceleration = jumpAccelerationi
 		self.gravity = gravityi
-		self.jumps = 2
+		self.numJumps = numJumpsi
+		self.jumps = numJumpsi
 		self.rect = None
 		self.vertSpeed = 0
 		self.sitting = True
@@ -56,7 +60,7 @@ class User(object):
 				if (moveY + self.size > topSide and moveY + self.size < bottomSide and self.x + self.size > leftSide and self.x < rightSide):
 					moveY = obs.y - self.size
 					self.vertSpeed = 0
-					self.jumps = 2
+					self.jumps = self.numJumps
 					self.sitting = True
 				i += 1
 			if (self.sitting is False):
@@ -96,3 +100,7 @@ class User(object):
 				self.sitting = False
 		else:
 			self.vertSpeed += self.gravity
+
+	def checkIfCaptured(self, powers):
+		userRect = pygame.Rect(self.x, self.y, self.size, self.size)
+		return userRect.collidelist(powers)
