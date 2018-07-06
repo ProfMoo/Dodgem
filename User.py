@@ -1,12 +1,14 @@
 import settings
 
 class User(object):
-	def __init__ (self, surfacei, xi, yi, moveratei, sizei):
+	def __init__ (self, surfacei, xi, yi, moveratei, sizei, jumpAccelerationi, gravityi):
 		self.surface = surfacei
 		self.x = xi
 		self.y = yi
 		self.moverate = moveratei
 		self.size = sizei
+		self.jumpAcceleration = jumpAccelerationi
+		self.gravity = gravityi
 		self.jumps = 2
 		self.rect = None
 		self.vertSpeed = 0
@@ -40,7 +42,7 @@ class User(object):
 	def vertMovement(self, obstacles):
 		#calculate center of where user wants to be
 		#see if it is inside of any obstacle
-		#move right above block
+		#move right above/below block
 		attemptedMovement = self.y + self.vertSpeed
 		if (self.vertSpeed > 0): #going down
 			i = 0
@@ -58,7 +60,7 @@ class User(object):
 					self.sitting = True
 				i += 1
 			if (self.sitting is False):
-				self.vertSpeed += settings.GRAVITY
+				self.vertSpeed += self.gravity
 			self.y = moveY
 		elif (self.vertSpeed < 0): #going up
 			i = 0
@@ -67,13 +69,14 @@ class User(object):
 				obs = obstacles[i]
 				leftSide = obs.x
 				rightSide = obs.x + obs.width
-				if (moveY - self.size < obs.y and moveY - self.size > obs.y + obs.height and self.x > leftSide and self.x < rightSide):
-					moveY = obs.y + self.size
+				topSide = obs.y
+				bottomSide = obs.y + obs.height
+				if (moveY > topSide and moveY < bottomSide and self.x + self.size > leftSide and self.x < rightSide):
+					moveY = obs.y + obs.height
 					self.vertSpeed = 0
-					self.sitting = True
 				i += 1
 			if (self.sitting is False):
-				self.vertSpeed += settings.GRAVITY
+				self.vertSpeed += self.gravity
 			self.y = moveY
 		elif (self.sitting is True): #on an obstacle
 			freeToFall = True
@@ -89,5 +92,7 @@ class User(object):
 				i += 1
 
 			if freeToFall:
-				self.vertSpeed += settings.GRAVITY
+				self.vertSpeed += self.gravity
 				self.sitting = False
+		else:
+			self.vertSpeed += self.gravity
