@@ -3,7 +3,7 @@ import time
 import pygame
 
 class Power(object):
-	def __init__ (self, surfacei, xi, yi, sizei, kindi):
+	def __init__ (self, surfacei, xi, yi, sizei, kindi, inactiveTimei):
 		self.surface = surfacei
 		self.rect = pygame.Rect(xi, yi, sizei, sizei)
 		self.x = xi
@@ -12,6 +12,8 @@ class Power(object):
 		self.lastHit = time.time()
 		self.kind = kindi
 		self.active = True
+		self.triggeredTime = None
+		self.inactiveTime = inactiveTimei
 
 	def draw(self):
 		if (self.active):
@@ -37,7 +39,10 @@ class Power(object):
 			# self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
 			# settings.DISPLAYSURF.blit(self.surface, self.rect)
 			self.active = False
-			pygame.time.set_timer(powerBackEvent, 2000)
+			self.triggeredTime = time.time()
+			pygame.time.set_timer(powerBackEvent, self.inactiveTime * 1000)
 
 	def makeActive(self):
-		self.active = True
+		currentTime = time.time()
+		if (self.inactiveTime - 0.1 < currentTime - self.triggeredTime < self.inactiveTime + 0.1):
+			self.active = True

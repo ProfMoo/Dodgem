@@ -7,7 +7,7 @@ WINWIDTH = 640 # width of the program's window, in pixels
 WINHEIGHT = 480 # height in pixels
 HALF_WINWIDTH = int(WINWIDTH / 2)
 HALF_WINHEIGHT = int(WINHEIGHT / 2)
-LEVEL = 3
+LEVEL = 4
 
 USERTYPE = 1
 
@@ -23,5 +23,7 @@ POWER_LIST = []
 POWER_OBJ_LIST = []
 
 POWERBACKEVENT = pygame.USEREVENT + 1
+POWERBACKEVENT2 = pygame.USEREVENT + 2
 
 EXTRA_JUMP = "extrajump"
+TWO_JUMPS = "twojumps"

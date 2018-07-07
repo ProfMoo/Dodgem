@@ -2,6 +2,8 @@ import random, sys, time, math, pygame
 from pygame.locals import *
 from User import *
 from Power import *
+from TripleJumpPower import *
+from DoubleJumpPower import *
 import settings
 
 def main():
@@ -32,13 +34,6 @@ def runGame():
     rightDown = False
 
     playerObj = userFactory(settings.USERTYPE)
-    size = 32
-    kind = settings.EXTRA_JUMP
-    POWERLOCATION = (580, 110)
-    global powerObj
-    powerObj = Power(pygame.transform.scale(POWER_IMG, (size, size)), POWERLOCATION[0], POWERLOCATION[1], size, kind)
-    settings.POWER_OBJ_LIST.append(powerObj)
-    settings.POWER_LIST.append(powerObj.rect)
 
     settings.DISPLAYSURF.fill(settings.BACKGROUNDCOLOR)
     pickLevel(settings.LEVEL)
@@ -87,9 +82,15 @@ def runGame():
 
             elif event.type == settings.POWERBACKEVENT:
                 pygame.time.set_timer(settings.POWERBACKEVENT, 0)
-                powerObj.makeActive()
-                print("power_list: ", settings.POWER_LIST)
+                settings.POWER_OBJ_LIST[0].makeActive()
 
+            elif event.type == settings.POWERBACKEVENT2:
+                pygame.time.set_timer(settings.POWERBACKEVENT2, 0)
+                settings.POWER_OBJ_LIST[1].makeActive()
+                # for power in settings.POWER_OBJ_LIST:
+                #     power.makeActive()
+
+        #moving the user
         if moveLeft:
             playerObj.leftMovement(settings.OBSTACLELIST)
         if moveRight:
@@ -99,10 +100,14 @@ def runGame():
         #checking if the user hit a powerup/down
         powerCollected = playerObj.checkIfCaptured(settings.POWER_LIST)
         if (powerCollected != -1): #we have collided with a powerup
+            #HERE IS THE PROBLEM FOR TOMORROW
             (settings.POWER_OBJ_LIST)[powerCollected].hit(playerObj, settings.POWERBACKEVENT)
 
-        powerObj.draw()
+        #drawing the powers
+        for power in settings.POWER_OBJ_LIST:
+            power.draw()
 
+        #updating the user
         updatePlayerImages(oldX, oldY, playerObj)
 
         pygame.display.update(settings.RECTS_TO_UPDATE)
@@ -141,6 +146,18 @@ def pickLevel(level):
         drawLevelTwo()
     if level == 3:
         drawLevelThree()
+    if level == 4:
+        drawLevelFour()
+
+def drawPower(x, y, size, kind):
+    POWERLOCATION = (x, y)
+    if (kind == settings.EXTRA_JUMP):
+        powerObj = TripleJumpPower(pygame.transform.scale(POWER_IMG, (size, size)), POWERLOCATION[0], POWERLOCATION[1], size, kind)
+    if (kind == settings.TWO_JUMPS):
+        powerObj = DoubleJumpPower(pygame.transform.scale(POWER_IMG, (size, size)), POWERLOCATION[0], POWERLOCATION[1], size, kind)
+    settings.POWER_OBJ_LIST.append(powerObj)
+    settings.POWER_LIST.append(powerObj.rect)
+
 
 def drawRectangle(x, y, width, height, color):
     OBSTACLE = pygame.Rect(x, y, width, height)
@@ -165,6 +182,14 @@ def drawLevelThree():
     drawRectangle(100, settings.WINHEIGHT-FLOORHEIGHT-100, 100, 100, settings.OBSTACLECOLOR)
     drawRectangle(250, settings.WINHEIGHT-FLOORHEIGHT-200, 100, 200, settings.OBSTACLECOLOR)
     drawRectangle(400, settings.WINHEIGHT-FLOORHEIGHT-200, 100, 100, settings.OBSTACLECOLOR)
+    drawPower(580, 110, 32, settings.EXTRA_JUMP)
+
+def drawLevelFour():
+    FLOORHEIGHT = 40
+    drawRectangle(0, settings.WINHEIGHT - FLOORHEIGHT, settings.WINWIDTH, FLOORHEIGHT + 40, settings.BLACK)
+    drawRectangle(100, settings.WINHEIGHT-FLOORHEIGHT-100, 100, 100, settings.OBSTACLECOLOR)
+    drawPower(580, 120, 32, settings.EXTRA_JUMP)
+    drawPower(180, 120, 32, settings.TWO_JUMPS)
 
 if __name__ == '__main__':
     main()
