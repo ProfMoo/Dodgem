@@ -1,6 +1,7 @@
 import pygame
+from pygame.locals import *
 
-global DISPLAYSURF
+global DISPLAYSURF, USER_IMG
 
 FPS = 30 # frames per second to update the screen
 WINWIDTH = 640 # width of the program's window, in pixels
@@ -9,7 +10,14 @@ HALF_WINWIDTH = int(WINWIDTH / 2)
 HALF_WINHEIGHT = int(WINHEIGHT / 2)
 LEVEL = 4
 
-USERTYPE = 1
+#user settings
+USERTYPE_NORMAL = "normal"
+USERTYPE_EXTRAJUMP = "extra"
+USERTYPE = USERTYPE_EXTRAJUMP
+
+USER_MOVERATE_RATIO = 0.5
+USER_JUMP_ACCELERATION_RATIO = (-7/8.)
+USER_GRAVITY_RATIO = (1/8.)
 
 OBSTACLECOLOR = (110, 110, 110)
 USERCOLOR = (200, 210, 45)
@@ -21,9 +29,6 @@ RECTS_TO_UPDATE = []
 OBSTACLELIST = []
 POWER_LIST = []
 POWER_OBJ_LIST = []
-
-POWERBACKEVENT = pygame.USEREVENT + 1
-POWERBACKEVENT2 = pygame.USEREVENT + 2
 
 EXTRA_JUMP = "extrajump"
 TWO_JUMPS = "twojumps"

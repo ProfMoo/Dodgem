@@ -9,11 +9,10 @@ class Power(object):
 		self.x = xi
 		self.y = yi
 		self.size = sizei
-		self.lastHit = time.time()
 		self.kind = kindi
-		self.active = True
-		self.triggeredTime = None
-		self.inactiveTime = inactiveTimei
+		self.active = True #if the user can collected and see the powerup
+		self.triggeredTime = time.time() - 1 #keeps track of when the user collected it
+		self.inactiveTime = inactiveTimei #how long the item is supposed to stay inactive
 
 	def draw(self):
 		if (self.active):
@@ -24,25 +23,14 @@ class Power(object):
 			pygame.draw.rect(settings.DISPLAYSURF, settings.BACKGROUNDCOLOR, coverRect)
 			pygame.display.update(coverRect)
 
-	def hit(self, user, powerBackEvent):
+	def hit(self, user):
 		currentTime = time.time()
-		if (currentTime - self.lastHit > 0.25 and self.active == True): #if we're going to register this collision as a hit
-			self.lastHit = time.time()
-			user.givePower(self.kind)
+		if (currentTime - self.triggeredTime > 0.25 and self.active == True): #if we're going to register this collision as a hit
+			self.givePower(user)
 			print("hit")
-
-			# coverRect = pygame.Rect(self.x, self.y, self.size, self.size)
-			# pygame.draw.rect(settings.DISPLAYSURF, settings.BACKGROUNDCOLOR, coverRect)
-			# settings.RECTS_TO_UPDATE.append(coverRect)
-
-
-			# self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
-			# settings.DISPLAYSURF.blit(self.surface, self.rect)
 			self.active = False
 			self.triggeredTime = time.time()
-			pygame.time.set_timer(powerBackEvent, self.inactiveTime * 1000)
 
-	def makeActive(self):
-		currentTime = time.time()
+	def makeActive(self, currentTime):
 		if (self.inactiveTime - 0.1 < currentTime - self.triggeredTime < self.inactiveTime + 0.1):
 			self.active = True

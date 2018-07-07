@@ -1,23 +1,24 @@
 import random, sys, time, math, pygame
-from pygame.locals import *
 from User import *
 from Power import *
 from TripleJumpPower import *
 from DoubleJumpPower import *
+from UserFactory import *
 import settings
 
 def main():
-    global FPSCLOCK, BASICFONT, USER_IMG, POWER_IMG
+    global FPSCLOCK, BASICFONT, POWER_IMG
 
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     pygame.display.set_icon(pygame.image.load('gameicon.png'))
     settings.DISPLAYSURF = pygame.display.set_mode((settings.WINWIDTH, settings.WINHEIGHT))
+    settings.USER_IMG = pygame.image.load('user.png').convert_alpha()
     pygame.display.set_caption('Dodgem')
     BASICFONT = pygame.font.Font('freesansbold.ttf', 32)
 
     # load the image files
-    USER_IMG = pygame.image.load('user.png').convert_alpha()
+
     POWER_IMG = pygame.image.load('power.png').convert_alpha()
 
     while True:
@@ -33,7 +34,8 @@ def runGame():
     leftDown = False
     rightDown = False
 
-    playerObj = userFactory(settings.USERTYPE)
+    userFactoryObject = UserFactory()
+    playerObj = userFactoryObject.createUser(settings.USERTYPE)
 
     settings.DISPLAYSURF.fill(settings.BACKGROUNDCOLOR)
     pickLevel(settings.LEVEL)
@@ -80,16 +82,6 @@ def runGame():
                 elif event.key == K_ESCAPE:
                     terminate()
 
-            elif event.type == settings.POWERBACKEVENT:
-                pygame.time.set_timer(settings.POWERBACKEVENT, 0)
-                settings.POWER_OBJ_LIST[0].makeActive()
-
-            elif event.type == settings.POWERBACKEVENT2:
-                pygame.time.set_timer(settings.POWERBACKEVENT2, 0)
-                settings.POWER_OBJ_LIST[1].makeActive()
-                # for power in settings.POWER_OBJ_LIST:
-                #     power.makeActive()
-
         #moving the user
         if moveLeft:
             playerObj.leftMovement(settings.OBSTACLELIST)
@@ -100,8 +92,12 @@ def runGame():
         #checking if the user hit a powerup/down
         powerCollected = playerObj.checkIfCaptured(settings.POWER_LIST)
         if (powerCollected != -1): #we have collided with a powerup
-            #HERE IS THE PROBLEM FOR TOMORROW
-            (settings.POWER_OBJ_LIST)[powerCollected].hit(playerObj, settings.POWERBACKEVENT)
+            (settings.POWER_OBJ_LIST)[powerCollected].hit(playerObj)
+
+        #checking if any powerups need to come back
+        currentTime = time.time()
+        for power in settings.POWER_OBJ_LIST:
+            power.makeActive(currentTime)
 
         #drawing the powers
         for power in settings.POWER_OBJ_LIST:
@@ -124,20 +120,6 @@ def updatePlayerImages(oldX, oldY, playerObj):
     playerObj.rect = pygame.Rect(playerObj.x, playerObj.y, playerObj.size, playerObj.size)
     settings.RECTS_TO_UPDATE.append(playerObj.rect)
     settings.DISPLAYSURF.blit(playerObj.surface, playerObj.rect)
-
-def userFactory(userType):
-    USER_MOVERATE = 20
-    USER_SIZE = 40
-    USER_JUMPACCELERATION = -35
-    USER_GRAVITY = 5
-    STARTLOCATION = (settings.HALF_WINWIDTH, settings.HALF_WINHEIGHT - 100)
-    NUM_JUMPS = 2
-    if (userType == 1):
-        playerObj = User(pygame.transform.scale(USER_IMG, (USER_SIZE, USER_SIZE)), STARTLOCATION[0], STARTLOCATION[1], USER_MOVERATE, USER_SIZE, USER_JUMPACCELERATION, USER_GRAVITY, NUM_JUMPS)
-    elif (userType == 2):
-        playerObj = User(pygame.transform.scale(USER_IMG, (USER_SIZE, USER_SIZE)), STARTLOCATION[0], STARTLOCATION[1], USER_MOVERATE, USER_SIZE, USER_JUMPACCELERATION, USER_GRAVITY, 3)
-
-    return playerObj
 
 def pickLevel(level):
     if level == 1:
