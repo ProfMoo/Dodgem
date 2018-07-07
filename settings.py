@@ -1,3 +1,7 @@
+import pygame
+
+global DISPLAYSURF
+
 FPS = 30 # frames per second to update the screen
 WINWIDTH = 640 # width of the program's window, in pixels
 WINHEIGHT = 480 # height in pixels
@@ -13,8 +17,11 @@ BACKGROUNDCOLOR = (210, 210, 210)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
+RECTS_TO_UPDATE = []
 OBSTACLELIST = []
 POWER_LIST = []
 POWER_OBJ_LIST = []
+
+POWERBACKEVENT = pygame.USEREVENT + 1
 
 EXTRA_JUMP = "extrajump"

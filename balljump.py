@@ -5,12 +5,12 @@ from Power import *
 import settings
 
 def main():
-    global FPSCLOCK, DISPLAYSURF, BASICFONT, USER_IMG, POWER_IMG
+    global FPSCLOCK, BASICFONT, USER_IMG, POWER_IMG
 
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     pygame.display.set_icon(pygame.image.load('gameicon.png'))
-    DISPLAYSURF = pygame.display.set_mode((settings.WINWIDTH, settings.WINHEIGHT))
+    settings.DISPLAYSURF = pygame.display.set_mode((settings.WINWIDTH, settings.WINHEIGHT))
     pygame.display.set_caption('Dodgem')
     BASICFONT = pygame.font.Font('freesansbold.ttf', 32)
 
@@ -32,13 +32,20 @@ def runGame():
     rightDown = False
 
     playerObj = userFactory(settings.USERTYPE)
+    size = 32
+    kind = settings.EXTRA_JUMP
+    POWERLOCATION = (580, 110)
+    global powerObj
+    powerObj = Power(pygame.transform.scale(POWER_IMG, (size, size)), POWERLOCATION[0], POWERLOCATION[1], size, kind)
+    settings.POWER_OBJ_LIST.append(powerObj)
+    settings.POWER_LIST.append(powerObj.rect)
 
-    DISPLAYSURF.fill(settings.BACKGROUNDCOLOR)
+    settings.DISPLAYSURF.fill(settings.BACKGROUNDCOLOR)
     pickLevel(settings.LEVEL)
     pygame.display.update()
 
     while True: # main game loop
-        rectsToUpdate = []
+        settings.RECTS_TO_UPDATE = []
         oldX = playerObj.x
         oldY = playerObj.y
         for event in pygame.event.get(): # event handling loop
@@ -78,41 +85,40 @@ def runGame():
                 elif event.key == K_ESCAPE:
                     terminate()
 
+            elif event.type == settings.POWERBACKEVENT:
+                pygame.time.set_timer(settings.POWERBACKEVENT, 0)
+                powerObj.makeActive()
+                print("power_list: ", settings.POWER_LIST)
+
         if moveLeft:
             playerObj.leftMovement(settings.OBSTACLELIST)
         if moveRight:
             playerObj.rightMovement(settings.OBSTACLELIST)
         playerObj.vertMovement(settings.OBSTACLELIST)
 
+        #checking if the user hit a powerup/down
         powerCollected = playerObj.checkIfCaptured(settings.POWER_LIST)
         if (powerCollected != -1): #we have collided with a powerup
-            powerCollectedObj = (settings.POWER_OBJ_LIST)[powerCollected]
-            currentTime = time.time()
-            if (currentTime - powerCollectedObj.lastHit) > 0.25:
-                powerCollectedObj.lastHit = time.time()
-                givePower(playerObj, powerCollectedObj)
-                print("hit")
+            (settings.POWER_OBJ_LIST)[powerCollected].hit(playerObj, settings.POWERBACKEVENT)
 
-        movePlayerRect = pygame.Rect(oldX, oldY, playerObj.size, playerObj.size)
-        pygame.draw.rect(DISPLAYSURF, settings.BACKGROUNDCOLOR, movePlayerRect)
-        rectsToUpdate.append(movePlayerRect)
-        playerObj.rect = pygame.Rect(playerObj.x, playerObj.y, playerObj.size, playerObj.size)
-        rectsToUpdate.append(playerObj.rect)
-        drawPower(550, 100, 32, settings.EXTRA_JUMP)
-        DISPLAYSURF.blit(playerObj.surface, playerObj.rect)
+        powerObj.draw()
 
-        pygame.display.update(rectsToUpdate)
+        updatePlayerImages(oldX, oldY, playerObj)
+
+        pygame.display.update(settings.RECTS_TO_UPDATE)
         FPSCLOCK.tick(settings.FPS)
 
 def terminate():
     pygame.quit()
     sys.exit()
 
-def givePower(player, power):
-    if (power.kind == settings.EXTRA_JUMP):
-        if (player.numJumps == 2 and player.jumps < 2):
-            player.jumps += 1
-        player.numJumps = 3
+def updatePlayerImages(oldX, oldY, playerObj):
+    movePlayerRect = pygame.Rect(oldX, oldY, playerObj.size, playerObj.size)
+    pygame.draw.rect(settings.DISPLAYSURF, settings.BACKGROUNDCOLOR, movePlayerRect)
+    settings.RECTS_TO_UPDATE.append(movePlayerRect)
+    playerObj.rect = pygame.Rect(playerObj.x, playerObj.y, playerObj.size, playerObj.size)
+    settings.RECTS_TO_UPDATE.append(playerObj.rect)
+    settings.DISPLAYSURF.blit(playerObj.surface, playerObj.rect)
 
 def userFactory(userType):
     USER_MOVERATE = 20
@@ -139,15 +145,7 @@ def pickLevel(level):
 def drawRectangle(x, y, width, height, color):
     OBSTACLE = pygame.Rect(x, y, width, height)
     settings.OBSTACLELIST.append(OBSTACLE)
-    pygame.draw.rect(DISPLAYSURF, color, OBSTACLE)
-
-def drawPower(x, y, size, kind):
-    POWERLOCATION = (x, y)
-    powerObj = Power(pygame.transform.scale(POWER_IMG, (size, size)), POWERLOCATION[0], POWERLOCATION[1], size, kind)
-    powerObj.rect = pygame.Rect(powerObj.x, powerObj.y, powerObj.size, powerObj.size)
-    settings.POWER_OBJ_LIST.append(powerObj)
-    settings.POWER_LIST.append(powerObj.rect)
-    DISPLAYSURF.blit(powerObj.surface, powerObj.rect)
+    pygame.draw.rect(settings.DISPLAYSURF, color, OBSTACLE)
 
 def drawLevelOne():
     FLOORHEIGHT = 100
@@ -167,7 +165,6 @@ def drawLevelThree():
     drawRectangle(100, settings.WINHEIGHT-FLOORHEIGHT-100, 100, 100, settings.OBSTACLECOLOR)
     drawRectangle(250, settings.WINHEIGHT-FLOORHEIGHT-200, 100, 200, settings.OBSTACLECOLOR)
     drawRectangle(400, settings.WINHEIGHT-FLOORHEIGHT-200, 100, 100, settings.OBSTACLECOLOR)
-    drawPower(550, 100, 32, settings.EXTRA_JUMP)
 
 if __name__ == '__main__':
     main()

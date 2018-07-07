@@ -104,3 +104,9 @@ class User(object):
 	def checkIfCaptured(self, powers):
 		userRect = pygame.Rect(self.x, self.y, self.size, self.size)
 		return userRect.collidelist(powers)
+
+	def givePower(self, kind):
+		if (kind == settings.EXTRA_JUMP):
+			if (self.numJumps == 2 and self.jumps < 2):
+				self.jumps += 1
+		self.numJumps = 3
