@@ -17,9 +17,8 @@ def main():
     pygame.display.set_caption('Dodgem')
     BASICFONT = pygame.font.Font('freesansbold.ttf', 32)
 
-    # load the image files
-
-    POWER_IMG = pygame.image.load('power.png').convert_alpha()
+    settings.TRIPLE_JUMP_POWER_IMG = pygame.image.load('power.png').convert_alpha()
+    settings.DOUBLE_JUMP_POWER_IMG = pygame.image.load('pikachu.png').convert_alpha()
 
     while True:
         runGame()
@@ -82,6 +81,8 @@ def runGame():
                 elif event.key == K_ESCAPE:
                     terminate()
 
+        #print("user.vertSpeed: ", playerObj.vertSpeed)
+
         #moving the user
         if moveLeft:
             playerObj.leftMovement(settings.OBSTACLELIST)
@@ -92,7 +93,7 @@ def runGame():
         #checking if the user hit a powerup/down
         powerCollected = playerObj.checkIfCaptured(settings.POWER_LIST)
         if (powerCollected != -1): #we have collided with a powerup
-            (settings.POWER_OBJ_LIST)[powerCollected].hit(playerObj)
+            playerObj = (settings.POWER_OBJ_LIST)[powerCollected].hit(playerObj)
 
         #checking if any powerups need to come back
         currentTime = time.time()
@@ -134,9 +135,9 @@ def pickLevel(level):
 def drawPower(x, y, size, kind):
     POWERLOCATION = (x, y)
     if (kind == settings.EXTRA_JUMP):
-        powerObj = TripleJumpPower(pygame.transform.scale(POWER_IMG, (size, size)), POWERLOCATION[0], POWERLOCATION[1], size, kind)
+        powerObj = TripleJumpPower(POWERLOCATION[0], POWERLOCATION[1], size, kind)
     if (kind == settings.TWO_JUMPS):
-        powerObj = DoubleJumpPower(pygame.transform.scale(POWER_IMG, (size, size)), POWERLOCATION[0], POWERLOCATION[1], size, kind)
+        powerObj = DoubleJumpPower(POWERLOCATION[0], POWERLOCATION[1], size, kind)
     settings.POWER_OBJ_LIST.append(powerObj)
     settings.POWER_LIST.append(powerObj.rect)
 
@@ -171,7 +172,7 @@ def drawLevelFour():
     drawRectangle(0, settings.WINHEIGHT - FLOORHEIGHT, settings.WINWIDTH, FLOORHEIGHT + 40, settings.BLACK)
     drawRectangle(100, settings.WINHEIGHT-FLOORHEIGHT-100, 100, 100, settings.OBSTACLECOLOR)
     drawPower(580, 120, 32, settings.EXTRA_JUMP)
-    drawPower(180, 120, 32, settings.TWO_JUMPS)
+    drawPower(180, 140, 32, settings.TWO_JUMPS)
 
 if __name__ == '__main__':
     main()

@@ -3,8 +3,7 @@ import time
 import pygame
 
 class Power(object):
-	def __init__ (self, surfacei, xi, yi, sizei, kindi, inactiveTimei):
-		self.surface = surfacei
+	def __init__ (self, xi, yi, sizei, kindi, inactiveTimei):
 		self.rect = pygame.Rect(xi, yi, sizei, sizei)
 		self.x = xi
 		self.y = yi
@@ -25,11 +24,13 @@ class Power(object):
 
 	def hit(self, user):
 		currentTime = time.time()
+		newUser = user
 		if (currentTime - self.triggeredTime > 0.25 and self.active == True): #if we're going to register this collision as a hit
-			self.givePower(user)
+			newUser = self.givePower(user)
 			print("hit")
 			self.active = False
 			self.triggeredTime = time.time()
+		return newUser
 
 	def makeActive(self, currentTime):
 		if (self.inactiveTime - 0.1 < currentTime - self.triggeredTime < self.inactiveTime + 0.1):

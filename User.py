@@ -4,7 +4,7 @@ import time
 from pygame.locals import *
 
 class User(object):
-	def __init__ (self, surfacei, xi, yi, moveratei, sizei, jumpAccelerationi, gravityi, numJumpsi):
+	def __init__ (self, surfacei, xi, yi, moveratei, sizei, jumpAccelerationi, gravityi, numJumpsi, jumpsi, vertSpeedi, sittingi):
 		self.surface = surfacei
 		self.x = xi
 		self.y = yi
@@ -13,10 +13,10 @@ class User(object):
 		self.jumpAcceleration = jumpAccelerationi
 		self.gravity = gravityi
 		self.numJumps = numJumpsi
-		self.jumps = numJumpsi
+		self.jumps = jumpsi
 		self.rect = None
-		self.vertSpeed = 0
-		self.sitting = True
+		self.vertSpeed = vertSpeedi
+		self.sitting = sittingi
 
 	def leftMovement(self, obstacles):
 		attemptedMovement = self.x - (self.size/2) - self.moverate
