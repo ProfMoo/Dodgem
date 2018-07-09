@@ -17,31 +17,58 @@ class User(object):
 		self.rect = None
 		self.vertSpeed = vertSpeedi
 		self.sitting = sittingi
+		self.horizontalAcceleration = 0
+		self.framesLeftMoving = 0
+
+		self.moveLeft = False
+		self.moveRight = False
+
+	def move(self):
+		print(self.horizontalAcceleration)
+		self.leftMovement(settings.OBSTACLELIST)
+		self.rightMovement(settings.OBSTACLELIST)
+		self.vertMovement(settings.OBSTACLELIST)
 
 	def leftMovement(self, obstacles):
-		attemptedMovement = self.x - (self.size/2) - self.moverate
-		i = 0
-		moveX = attemptedMovement
-		while (i < len(obstacles)):
-			obs = obstacles[i]
-			# print("first: ", obs.x + obs.width < moveX)
-			# print("second: ", obs.x - self.size/2 > moveX)
-			if (obs.x - self.size/2 < moveX and obs.y < (self.y + self.size) and obs.y + obs.height > self.y and obs.x + obs.width > moveX):
-				moveX = obs.x + obs.width - self.size/2
-			i += 1
-		self.x = moveX + self.size/2
+		if (self.moveLeft):
+			if (self.horizontalAcceleration > -1):
+				self.horizontalAcceleration -= 0.25
+		else: 
+			if (self.horizontalAcceleration < 0 and self.moveRight is False):
+				self.horizontalAcceleration += 0.25
+
+		if (self.horizontalAcceleration != 0):
+			attemptedMovement = self.x + (self.moverate * self.horizontalAcceleration)
+			i = 0
+			moveX = attemptedMovement
+			while (i < len(obstacles)): #checking for obstacle collision
+				obs = obstacles[i]
+				# print("first: ", obs.x + obs.width < moveX)
+				# print("second: ", obs.x - self.size/2 > moveX)
+				if (obs.x - self.size < moveX and obs.y < (self.y + self.size) and obs.y + obs.height > self.y and obs.x + obs.width > moveX):
+					moveX = obs.x + obs.width - self.size/2
+				i += 1
+			self.x = moveX + self.size/2
 
 	def rightMovement(self, obstacles):
-		attemptedMovement = self.x + (self.size/2) + self.moverate
-		i = 0
-		rectangle = 0
-		moveX = attemptedMovement
-		while (i < len(obstacles)):
-			obs = obstacles[i]
-			if (obs.x - self.size/2 < moveX and obs.y < (self.y + self.size) and obs.y + obs.height > self.y and obs.x + obs.width > self.x):
-				moveX = obs.x - self.size/2
-			i += 1
-		self.x = moveX - self.size/2
+		if (self.moveRight):
+			if (self.horizontalAcceleration < 1):
+				self.horizontalAcceleration += 0.25
+		else: 
+			if (self.horizontalAcceleration > 0 and self.moveLeft is False):
+				self.horizontalAcceleration -= 0.25
+
+		if (self.horizontalAcceleration != 0):
+			attemptedMovement = self.x + (self.size/2) + (self.moverate * self.horizontalAcceleration)
+			i = 0
+			rectangle = 0
+			moveX = attemptedMovement
+			while (i < len(obstacles)): #checking for obstacle collision
+				obs = obstacles[i]
+				if (obs.x - self.size/2 < moveX and obs.y < (self.y + self.size) and obs.y + obs.height > self.y and obs.x + obs.width > self.x):
+					moveX = obs.x - self.size/2
+				i += 1
+			self.x = moveX - self.size/2
 
 	def vertMovement(self, obstacles):
 		#calculate center of where user wants to be
@@ -51,7 +78,7 @@ class User(object):
 		if (self.vertSpeed > 0): #going down
 			i = 0
 			moveY = attemptedMovement
-			while (i < len(obstacles)):
+			while (i < len(obstacles)): #checking for obstacle collision
 				obs = obstacles[i]
 				leftSide = obs.x
 				rightSide = obs.x + obs.width
@@ -69,7 +96,7 @@ class User(object):
 		elif (self.vertSpeed < 0): #going up
 			i = 0
 			moveY = attemptedMovement
-			while (i < len(obstacles)):
+			while (i < len(obstacles)): #checking for obstacle collision
 				obs = obstacles[i]
 				leftSide = obs.x
 				rightSide = obs.x + obs.width

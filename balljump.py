@@ -24,12 +24,6 @@ def main():
         runGame()
 
 def runGame():
-    moveLeft  = False
-    moveRight = False
-    moveVert = False
-    
-    vertMovement = 0
-
     leftDown = False
     rightDown = False
 
@@ -50,14 +44,14 @@ def runGame():
 
             elif event.type == KEYDOWN:
                 if event.key in (K_LEFT, K_a):
-                    moveRight = False
+                    playerObj.moveRight = False
                     if rightDown is not True:
-                        moveLeft = True
+                        playerObj.moveLeft = True
                     leftDown = True
                 elif event.key in (K_RIGHT, K_d):
-                    moveLeft = False
+                    playerObj.moveLeft = False
                     if leftDown is not True:
-                        moveRight = True
+                        playerObj.moveRight = True
                     rightDown = True
                 elif event.key is K_SPACE:
                     if playerObj.jumps != 0:
@@ -69,13 +63,13 @@ def runGame():
             elif event.type == KEYUP:
                 if event.key in (K_LEFT, K_a):
                     if rightDown is True:
-                        moveRight = True
-                    moveLeft = False
+                        playerObj.moveRight = True
+                    playerObj.moveLeft = False
                     leftDown = False
                 elif event.key in (K_RIGHT, K_d):
                     if leftDown is True:
-                        moveLeft = True
-                    moveRight = False
+                        playerObj.moveLeft = True
+                    playerObj.moveRight = False
                     rightDown = False
 
                 elif event.key == K_ESCAPE:
@@ -84,11 +78,7 @@ def runGame():
         #print("user.vertSpeed: ", playerObj.vertSpeed)
 
         #moving the user
-        if moveLeft:
-            playerObj.leftMovement(settings.OBSTACLELIST)
-        if moveRight:
-            playerObj.rightMovement(settings.OBSTACLELIST)
-        playerObj.vertMovement(settings.OBSTACLELIST)
+        playerObj.move()
 
         #checking if the user hit a powerup/down
         powerCollected = playerObj.checkIfCaptured(settings.POWER_LIST)
