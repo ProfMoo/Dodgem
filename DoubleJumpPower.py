@@ -11,7 +11,4 @@ class DoubleJumpPower(Power):
 	def givePower(self, user):
 		userFactory = UserFactory()
 		newUser = userFactory.changeUser(user, settings.USERTYPE_NORMAL)
-		if (newUser.numJumps == 3 and newUser.jumps > 0):
-			newUser.jumps -= 1
-		newUser.numJumps = 2
 		return newUser

@@ -13,7 +13,4 @@ class TripleJumpPower(Power):
 	def givePower(self, user):
 		userFactory = UserFactory()
 		newUser = userFactory.changeUser(user, settings.USERTYPE_EXTRAJUMP)
-		if (newUser.numJumps == 2 and newUser.jumps < 2):
-			newUser.jumps += 1
-		newUser.numJumps = 3
 		return newUser
